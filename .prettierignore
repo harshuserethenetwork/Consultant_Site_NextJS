@@ -1,0 +1,21 @@
+# Dependencies
+node_modules
+
+# Next.js build output
+.next
+out
+build
+
+# Lock files and generated sources
+package-lock.json
+next-env.d.ts
+*.tsbuildinfo
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Coverage and OS files
+coverage
+.DS_Store

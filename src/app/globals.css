@@ -1,0 +1,166 @@
+/* =============================================================================
+ * GLOBAL STYLES — the single stylesheet for the whole application.
+ *
+ * Colour tokens (`--background`, `--primary`, …) are NOT defined here.
+ * They are generated from `src/config/site.config.ts` by `src/lib/theme.ts`
+ * and injected into <head> by `src/app/layout.tsx`, so the values you edit in
+ * the config are always the ones the browser uses.
+ * =============================================================================
+ */
+
+/* Load Tailwind, then our shared TS config (Tailwind v4 `@config` directive). */
+@import "tailwindcss";
+@config "../../tailwind.config.ts";
+
+@layer base {
+  /* -----------------------------------------------------------------------------
+   * Feedback colours (states, not brand data — brand colours come from the config)
+   * -------------------------------------------------------------------------- */
+  :root {
+    --destructive: #dc2626;
+    --destructive-foreground: #ffffff;
+    --success: #16a34a;
+    --success-foreground: #ffffff;
+
+    /* Duration of the colour cross-fade when the visitor switches theme. */
+    --theme-transition-duration: 200ms;
+  }
+
+  /* -----------------------------------------------------------------------------
+   * Base element styles
+   * -------------------------------------------------------------------------- */
+  *,
+  *::before,
+  *::after {
+    /* Tailwind v4 defaults borders to `currentColor`; we prefer the theme border. */
+    border-color: var(--border);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    scroll-behavior: smooth;
+    /* Keeps anchor targets clear of a sticky header (added in a later step). */
+    scroll-padding-top: 6rem;
+    /* Native scrollbars, form controls and popups follow the active theme. */
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family:
+      var(--font-body),
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      "Segoe UI",
+      sans-serif;
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100dvh;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family:
+      var(--font-heading), var(--font-body), ui-sans-serif, system-ui, sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  p,
+  li,
+  blockquote {
+    text-wrap: pretty;
+  }
+
+  code,
+  kbd,
+  samp,
+  pre {
+    font-family: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+
+  ::selection {
+    background-color: color-mix(in srgb, var(--primary) 22%, transparent);
+    color: var(--foreground);
+  }
+
+  /* -----------------------------------------------------------------------------
+   * Accessibility — visible keyboard focus (WCAG 2.4.7), no ring for mouse users
+   * -------------------------------------------------------------------------- */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  /* -----------------------------------------------------------------------------
+   * Smooth theme switching — colours cross-fade instead of snapping.
+   * Everything stays inside @layer base so Tailwind utilities (e.g.
+   * `transition-none`, `duration-*`) still win over it.
+   * -------------------------------------------------------------------------- */
+  @media (prefers-reduced-motion: no-preference) {
+    *,
+    *::before,
+    *::after {
+      transition-property:
+        background-color, border-color, color, fill, stroke, text-decoration-color;
+      transition-duration: var(--theme-transition-duration);
+      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  }
+
+  /* -----------------------------------------------------------------------------
+   * prefers-reduced-motion — disable animations and smooth scrolling (WCAG 2.3.3)
+   * -------------------------------------------------------------------------- */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* -----------------------------------------------------------------------------
+   * Scrollbars (WebKit) — themed through the same CSS variables
+   * -------------------------------------------------------------------------- */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--muted);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--muted-foreground) 45%, transparent);
+    border: 2px solid var(--muted);
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in srgb, var(--muted-foreground) 70%, transparent);
+  }
+}
