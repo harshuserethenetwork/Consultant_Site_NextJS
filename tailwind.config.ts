@@ -108,23 +108,10 @@ const config: Config = {
           from: { opacity: "0", transform: "translateY(16px)" },
           to: { opacity: "1", transform: "translateY(0)" },
         },
-        marquee: {
-          from: { transform: "translateX(0)" },
-          to: { transform: "translateX(-50%)" },
-        },
-        // Slow vertical drift for the decorative hero shapes.
-        float: {
-          "0%, 100%": { transform: "translateY(0)" },
-          "50%": { transform: "translateY(-6%)" },
-        },
       },
 
       animation: {
         "fade-in-up": "fade-in-up 0.5s ease-out both",
-        marquee: "marquee 40s linear infinite",
-        float: "float 9s ease-in-out infinite",
-        // Same drift, slower and offset so shapes never move in lockstep.
-        "float-slow": "float 15s ease-in-out 1.5s infinite",
       },
     },
   },

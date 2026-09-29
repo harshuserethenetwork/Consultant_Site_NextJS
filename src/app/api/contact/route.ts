@@ -136,7 +136,7 @@ export async function POST(request: Request): Promise<Response> {
  *
  *   const resend = new Resend(process.env.RESEND_API_KEY);
  *   const { error } = await resend.emails.send({
- *     from: process.env.CONTACT_FORM_FROM_EMAIL ?? "Nexora Website <onboarding@resend.dev>",
+ *     from: process.env.CONTACT_FORM_FROM_EMAIL ?? "Process IQ Tech <onboarding@resend.dev>",
  *     to: [process.env.CONTACT_FORM_TO_EMAIL],
  *     replyTo: values.email,   // "Reply" lands straight in the sender's inbox
  *     subject: `[Contact] ${values.subject}`,

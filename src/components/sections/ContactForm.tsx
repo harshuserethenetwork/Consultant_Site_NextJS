@@ -1,16 +1,45 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
+import type { SelectHTMLAttributes } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { CircleCheck, Send } from "lucide-react";
 import { useForm, type Path } from "react-hook-form";
 import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
+import { Input, fieldClasses } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
+import { cn } from "@/lib/utils";
 import { EASE_OUT } from "@/lib/animations";
 import { contactFormSchema, type ContactFormValues } from "@/lib/validations";
 import type { ContactFormConfig } from "@/types/config";
+
+/**
+ * Native `<select>` sharing the same chrome as `Input`, so the two look
+ * identical in both themes.
+ */
+function Select({
+  id,
+  className,
+  children,
+  ...props
+}: SelectHTMLAttributes<HTMLSelectElement>) {
+  return (
+    <select
+      id={id}
+      className={cn(fieldClasses, "h-11 appearance-none pr-9", className)}
+      style={{
+        backgroundImage:
+          "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235A6878' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")",
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "right 0.75rem center",
+      }}
+      {...props}
+    >
+      {children}
+    </select>
+  );
+}
 
 /**
  * One labelled control: label on top, field, inline error underneath.
@@ -85,7 +114,9 @@ export function ContactForm({ form }: ContactFormProps) {
       name: "",
       email: "",
       phone: "",
-      subject: "",
+      company: "",
+      needs: "",
+      teamSize: "",
       message: "",
       website: "",
     },
@@ -217,21 +248,38 @@ export function ContactForm({ form }: ContactFormProps) {
           />
         </Field>
 
-        <Field
-          id="contact-subject"
-          label={form.subjectLabel}
-          required
-          error={errors.subject?.message}
-        >
+        <Field id="contact-company" label={form.companyLabel} note="Optional">
           <Input
-            id="contact-subject"
+            id="contact-company"
             type="text"
-            autoComplete="off"
-            placeholder={form.subjectPlaceholder}
-            aria-invalid={errors.subject ? true : undefined}
-            aria-describedby={errors.subject ? "contact-subject-error" : undefined}
-            {...register("subject")}
+            autoComplete="organization"
+            placeholder={form.companyPlaceholder}
+            {...register("company")}
           />
+        </Field>
+      </div>
+
+      <div className="grid gap-5 sm:grid-cols-2">
+        <Field id="contact-needs" label={form.needsLabel}>
+          <Select id="contact-needs" {...register("needs")}>
+            <option value="">Select an option</option>
+            {form.needsOptions.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </Select>
+        </Field>
+
+        <Field id="contact-team-size" label={form.teamSizeLabel}>
+          <Select id="contact-team-size" {...register("teamSize")}>
+            <option value="">Select an option</option>
+            {form.teamSizeOptions.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </Select>
         </Field>
       </div>
 

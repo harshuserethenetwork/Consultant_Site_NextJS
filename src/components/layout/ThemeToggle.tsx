@@ -59,7 +59,7 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
       title={`Theme: ${CHOICE_LABEL[current]}`}
       className={cn(
         buttonVariants({ variant: "ghost", size: "icon" }),
-        "rounded-full",
+        "rounded-md",
         className,
       )}
     >

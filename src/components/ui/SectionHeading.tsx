@@ -9,8 +9,8 @@ export type SectionHeadingLevel = "h1" | "h2" | "h3";
  * The heading block used at the top of every section.
  * Pass `siteConfig.<section>.heading` straight into it.
  *
- * The `highlight` words are wrapped in a span so they can take the accent
- * colour (WCAG AA: `text-primary` on the page background).
+ * The `highlight` words are wrapped in a span so they take the brand colour
+ * (WCAG AA: `text-primary` on the page background).
  *
  * Server Component — no "use client" needed.
  */
@@ -28,9 +28,9 @@ const ALIGN_CLASSES: Record<SectionHeadingAlign, string> = {
 };
 
 const HEADING_CLASSES: Record<SectionHeadingLevel, string> = {
-  h1: "text-4xl sm:text-5xl lg:text-6xl",
-  h2: "text-3xl sm:text-4xl lg:text-5xl",
-  h3: "text-2xl sm:text-3xl lg:text-4xl",
+  h1: "text-[2.5rem] leading-[1.06] sm:text-[3rem] lg:text-[3.5rem]",
+  h2: "text-[1.875rem] leading-[1.15] sm:text-[2.25rem] lg:text-[2.75rem]",
+  h3: "text-xl leading-tight sm:text-2xl lg:text-3xl",
 };
 
 function renderTitle(title: string, highlight?: string): ReactNode {
@@ -62,14 +62,14 @@ export function SectionHeading({
       className={cn("flex max-w-3xl flex-col gap-4", ALIGN_CLASSES[align], className)}
     >
       {eyebrow ? (
-        <p className="text-sm font-semibold tracking-widest text-primary uppercase">
+        <p className="text-xs font-semibold tracking-[0.18em] text-primary uppercase">
           {eyebrow}
         </p>
       ) : null}
 
       <HeadingTag
         className={cn(
-          "font-heading font-bold tracking-tight text-foreground",
+          "font-heading font-semibold tracking-tight text-foreground",
           HEADING_CLASSES[HeadingTag],
         )}
       >

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, JetBrains_Mono, Sora } from "next/font/google";
+import { Archivo, Inter, JetBrains_Mono } from "next/font/google";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { PageTransition } from "@/components/layout/PageTransition";
@@ -16,7 +16,7 @@ import "./globals.css";
  * The three `variable` names must stay in sync with `fontFamily` in
  * `tailwind.config.ts` and with `siteConfig.theme.fonts`:
  *   Inter          → --font-body     → font-sans
- *   Sora           → --font-heading  → font-heading
+ *   Archivo        → --font-heading  → font-heading
  *   JetBrains Mono → --font-mono     → font-mono
  */
 const bodyFont = Inter({
@@ -25,10 +25,11 @@ const bodyFont = Inter({
   display: "swap",
 });
 
-const headingFont = Sora({
+const headingFont = Archivo({
   subsets: ["latin"],
   variable: "--font-heading",
   display: "swap",
+  weight: ["400", "500", "600", "700"],
 });
 
 const monoFont = JetBrains_Mono({
@@ -38,6 +39,18 @@ const monoFont = JetBrains_Mono({
 });
 
 const { seo, company, theme, features } = siteConfig;
+
+/** Open Graph images are optional: the file ships with a later design pass. */
+const ogImages = seo.ogImage
+  ? [
+      {
+        url: seo.ogImage,
+        width: 1200,
+        height: 630,
+        alt: `${company.name} — ${company.tagline}`,
+      },
+    ]
+  : [];
 
 export const metadata: Metadata = {
   metadataBase: new URL(seo.siteUrl),
@@ -58,22 +71,15 @@ export const metadata: Metadata = {
     siteName: company.name,
     title: seo.title,
     description: seo.description,
-    images: [
-      {
-        url: seo.ogImage,
-        width: 1200,
-        height: 630,
-        alt: `${company.name} — ${company.tagline}`,
-      },
-    ],
+    images: ogImages,
   },
   twitter: {
     card: seo.twitter.card,
-    site: seo.twitter.site,
-    creator: seo.twitter.creator,
+    site: seo.twitter.site || undefined,
+    creator: seo.twitter.creator || undefined,
     title: seo.title,
     description: seo.description,
-    images: [seo.ogImage],
+    images: seo.ogImage ? [seo.ogImage] : undefined,
   },
   robots: { index: true, follow: true },
 };

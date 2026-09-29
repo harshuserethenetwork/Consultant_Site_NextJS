@@ -2,17 +2,15 @@ import type { HTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { Container, type ContainerSize } from "@/components/ui/Container";
 
-export type SectionTone = "default" | "muted" | "card" | "primary" | "gradient";
+export type SectionTone = "default" | "muted" | "card" | "primary";
 
 export type SectionPadding = "none" | "sm" | "md" | "lg";
 
 const TONE_CLASSES: Record<SectionTone, string> = {
   default: "bg-background text-foreground",
-  muted: "bg-muted/60 text-foreground",
+  muted: "bg-muted/70 text-foreground",
   card: "bg-card text-foreground",
   primary: "bg-primary text-primary-foreground",
-  gradient:
-    "bg-gradient-to-br from-primary via-primary to-accent text-primary-foreground",
 };
 
 const PADDING_CLASSES: Record<SectionPadding, string> = {

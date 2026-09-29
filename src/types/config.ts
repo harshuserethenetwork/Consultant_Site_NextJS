@@ -7,6 +7,11 @@
  *
  * If you add a new kind of content to the config, declare its shape here first.
  * Components import these types so they can never read a wrong/missing field.
+ *
+ * Content rule for this site: only publish statements the company has actually
+ * supplied (services, engagement terms, platform names, management experience).
+ * No metrics, clients, testimonials, certifications or team members are part of
+ * this model, so they cannot be rendered by accident.
  * -----------------------------------------------------------------------------
  */
 
@@ -18,10 +23,10 @@ export type ThemeMode = "light" | "dark" | "system";
 /** Corner radius preset applied to cards, buttons and inputs. */
 export type ThemeRadius = "none" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl";
 
-/** A hex color such as "#4F46E5". Keeps typos like "blue-ish" out of the theme. */
+/** A hex color such as "#11263F". Keeps typos like "blue-ish" out of the theme. */
 export type HexColor = `#${string}`;
 
-/** Name of a lucide-react icon component, e.g. "Rocket" or "ShieldCheck". */
+/** Name of a lucide-react icon component, e.g. "ShieldCheck". */
 export type IconName = string;
 
 /** Every social network the footer/header can render an icon for. */
@@ -44,25 +49,20 @@ export type SocialPlatform =
 /** A file stored in /public (always starts with "/"). */
 export type PublicPath = string;
 
-/** A route or in-page anchor, e.g. "/contact" or "/#services". */
+/** A route or in-page anchor, e.g. "/contact" or "/#engagement". */
 export type Href = string;
 
 /** Every section of the site that can be switched on/off from the config. */
 export type SectionId =
   | "header"
   | "hero"
-  | "clients"
-  | "about"
-  | "services"
-  | "stats"
-  | "projects"
-  | "team"
-  | "testimonials"
-  | "pricing"
+  | "capabilities"
+  | "process"
+  | "technology"
+  | "experience"
+  | "engagement"
   | "faq"
-  | "blog"
   | "cta"
-  | "contact"
   | "footer";
 
 /* ------------------------------ shared objects ------------------------------ */
@@ -71,7 +71,7 @@ export type SectionId =
 export interface CtaButton {
   /** Text shown on the button. */
   label: string;
-  /** Where it goes: a route ("/services") or an anchor ("/#pricing"). */
+  /** Where it goes: a route ("/engagement") or an anchor ("/#process"). */
   href: Href;
   /** Opens the link in a new tab (use for external links). */
   external?: boolean;
@@ -79,7 +79,7 @@ export interface CtaButton {
 
 /** An image with an accessible description (required for WCAG AA). */
 export interface ImageAsset {
-  /** Path inside /public, e.g. "/images/projects/apollo.png". */
+  /** Path inside /public, e.g. "/images/hero/operations.png". */
   src: PublicPath;
   /** Describes the image for screen readers and search engines. */
   alt: string;
@@ -90,7 +90,7 @@ export interface ImageAsset {
 
 /** Standard heading block shared by every section. */
 export interface SectionHeading {
-  /** Small text above the title, e.g. "Who we are". */
+  /** Small text above the title, e.g. "What we do". */
   eyebrow?: string;
   /** Main section title. */
   title: string;
@@ -100,11 +100,21 @@ export interface SectionHeading {
   subtitle?: string;
 }
 
-/** A small label shown as a pill, e.g. "New", "Most popular". */
+/** A small label shown as a pill, e.g. "Optional". */
 export interface Badge {
   label: string;
   /** Optional icon shown before the label. */
   icon?: IconName;
+}
+
+/** One row of a definition list (label above value, hairline separated). */
+export interface TermRow {
+  /** Small label, e.g. "Rate". */
+  label: string;
+  /** The value itself, e.g. "$1,800". */
+  value: string;
+  /** Optional clarifying line under the value. */
+  note?: string;
 }
 
 /* --------------------------------- company ---------------------------------- */
@@ -121,9 +131,9 @@ export interface CompanyLogo {
 }
 
 export interface CompanyConfig {
-  /** Brand name shown everywhere, e.g. "Nexora". */
+  /** Brand name shown everywhere, e.g. "Process IQ Tech". */
   name: string;
-  /** Short version used for tight spaces (logo, footer), e.g. "Nexora". */
+  /** Short version used for tight spaces (logo, footer). */
   shortName: string;
   /** Full registered name, used in the footer/legal text. */
   legalName: string;
@@ -131,27 +141,13 @@ export interface CompanyConfig {
   tagline: string;
   /** 1–2 sentence description of the company (SEO + about section). */
   description: string;
-  /** Year the company started. */
-  foundedYear: number;
-  /** Headquarters / registered address line. */
-  headquarters: string;
   /** Logo files for both themes. */
   logo: CompanyLogo;
-  /** Favicon file inside /public, usually "/favicon.ico". */
+  /** Favicon file, usually "/favicon.ico". */
   favicon: PublicPath;
 }
 
 /* --------------------------------- contact ---------------------------------- */
-
-/** Opening hours for one group of days. */
-export interface WorkingHour {
-  /** Days covered, e.g. "Monday – Friday". */
-  days: string;
-  /** Hours covered, e.g. "09:00 – 18:00". */
-  hours: string;
-  /** Set true when the office is closed on those days. */
-  closed?: boolean;
-}
 
 /** Labels, placeholders and messages rendered by the /contact form. */
 export interface ContactFormConfig {
@@ -163,8 +159,16 @@ export interface ContactFormConfig {
   phonePlaceholder: string;
   /** Small note next to the phone label, e.g. "Optional". */
   phoneNote?: string;
-  subjectLabel: string;
-  subjectPlaceholder: string;
+  companyLabel: string;
+  companyPlaceholder: string;
+  /** Label of the "which functions do you need" select. */
+  needsLabel: string;
+  /** Options of the "which functions do you need" select. */
+  needsOptions: string[];
+  /** Label of the "estimated team size" select. */
+  teamSizeLabel: string;
+  /** Options of the "estimated team size" select (ordered small to large). */
+  teamSizeOptions: string[];
   messageLabel: string;
   messagePlaceholder: string;
   /** Submit button label while idle. */
@@ -186,34 +190,39 @@ export interface ContactConfig {
   heading: SectionHeading;
   /** Copy used by the contact form. */
   form: ContactFormConfig;
-  /** Title above the social-links card on /contact. */
-  socialsLabel: string;
-  /** Main contact address. */
-  email: string;
-  /** Dedicated support address (optional). */
+  /** Title above the social-links card on /contact (only when links exist). */
+  socialsLabel?: string;
+  /** Main contact address — only set it if it is a real, monitored inbox. */
+  email?: string;
+  /** Support address (optional, only if monitored). */
   supportEmail?: string;
-  /** Displayed phone number, e.g. "+1 (415) 555-0142". */
-  phone: string;
-  /** Phone number in international format, used by the WhatsApp link. */
-  whatsapp: string;
-  /** Street address, e.g. "785 Mission Street, Suite 1200". */
-  address: string;
-  /** Postal/ZIP code. */
+  /** Displayed phone number, only if a real number is published. */
+  phone?: string;
+  /** Street address, only if a real address is published. */
+  address?: string;
   postalCode?: string;
-  /** City. */
-  city: string;
-  /** State / region. */
+  city?: string;
   region?: string;
-  /** Country. */
-  country: string;
-  /** Google Maps embed URL (the one that starts with https://www.google.com/maps/embed). */
-  mapEmbedUrl: string;
-  /** Opening hours, one entry per group of days. */
-  workingHours: WorkingHour[];
-  /** Options offered in the contact form "How can we help?" field. */
-  inquiryTypes: string[];
-  /** Options offered in the contact form "Budget" field. */
-  budgetRanges: string[];
+  country?: string;
+  /** Google Maps embed URL — omit entirely when no verified address exists. */
+  mapEmbedUrl?: string;
+  /** Opening hours, one entry per group of days (omit when unpublished). */
+  workingHours?: WorkingHour[];
+  /** Guidance block: what to include when describing an operation. */
+  guidance?: {
+    title: string;
+    items: string[];
+  };
+}
+
+/** Opening hours for one group of days. */
+export interface WorkingHour {
+  /** Days covered, e.g. "Monday – Friday". */
+  days: string;
+  /** Hours covered, e.g. "09:00 – 18:00". */
+  hours: string;
+  /** Set true when the office is closed on those days. */
+  closed?: boolean;
 }
 
 /* ---------------------------------- social ---------------------------------- */
@@ -223,18 +232,18 @@ export interface SocialLink {
   platform: SocialPlatform;
   /** Full URL of the profile. Not needed for "email". */
   url: string;
-  /** Accessible name shown to screen readers, e.g. "Nexora on LinkedIn". */
+  /** Accessible name shown to screen readers. */
   label: string;
   /** Show this link in the main site footer. */
   showInFooter?: boolean;
-  /** Show this link in the header/topbar. */
+  /** Show this link in the header. */
   showInHeader?: boolean;
 }
 
 /* ----------------------------------- seo ------------------------------------ */
 
 export interface TwitterCardConfig {
-  /** Twitter/X handle of the site, e.g. "@nexoratech". */
+  /** Twitter/X handle of the site, e.g. "@processiqtech". */
   site: string;
   /** Handle of the content creator, usually the same as `site`. */
   creator: string;
@@ -243,7 +252,7 @@ export interface TwitterCardConfig {
 }
 
 export interface SeoConfig {
-  /** Default browser/title bar text, e.g. "Nexora — Digital Product Engineering". */
+  /** Default browser/title bar text. */
   title: string;
   /** Pattern for page titles, "%s" is replaced by the page name. */
   titleTemplate: string;
@@ -251,9 +260,9 @@ export interface SeoConfig {
   description: string;
   /** Search keywords. */
   keywords: string[];
-  /** Social share image (1200×630 px), path inside /public. */
-  ogImage: PublicPath;
-  /** Canonical domain without a trailing slash, e.g. "https://www.nexora.tech". */
+  /** Social share image (1200×630 px), path inside /public (optional). */
+  ogImage?: PublicPath;
+  /** Canonical domain without a trailing slash. */
   siteUrl: string;
   /** Twitter/X card settings. */
   twitter: TwitterCardConfig;
@@ -287,7 +296,7 @@ export interface ThemePalette {
   secondary: HexColor;
   /** Text color used on top of `secondary`. */
   secondaryForeground: HexColor;
-  /** Highlight color: gradients, badges, hover accents. */
+  /** Restrained highlight used for badges and small emphasis. */
   accent: HexColor;
   /** Text color used on top of `accent`. */
   accentForeground: HexColor;
@@ -297,7 +306,7 @@ export interface ThemePalette {
 
 /** Fonts used by the site. Names must be loaded with next/font in the layout. */
 export interface ThemeFonts {
-  /** Display/headings font, e.g. "Sora". */
+  /** Display/headings font, e.g. "Archivo". */
   heading: string;
   /** Body/UI font, e.g. "Inter". */
   body: string;
@@ -325,9 +334,9 @@ export interface ThemeConfig {
 export interface NavLink {
   label: string;
   href: Href;
-  /** Short line shown under the label in mega/dropdown menus. */
+  /** Short line shown under the label in dropdown menus. */
   description?: string;
-  /** Small pill after the label, e.g. "New". */
+  /** Small pill after the label. */
   badge?: string;
   /** Opens in a new tab (external links only). */
   external?: boolean;
@@ -356,16 +365,15 @@ export interface NavigationConfig {
 
 /* ----------------------------------- hero ----------------------------------- */
 
-/** A short proof point shown under the hero buttons. */
-export interface HeroHighlight {
-  icon: IconName;
+/** A short qualifier shown under the hero buttons (e.g. engagement facts). */
+export interface HeroQualifier {
   label: string;
   description?: string;
 }
 
 export interface HeroConfig {
   eyebrow?: string;
-  /** Main headline. Keep it under ~12 words for the best impact. */
+  /** Main headline. Keep it under ~10 words for the best impact. */
   title: string;
   /** Words inside `title` that get the accent color. */
   highlight?: string;
@@ -373,274 +381,209 @@ export interface HeroConfig {
   subtitle: string;
   primaryCta: CtaButton;
   secondaryCta?: CtaButton;
-  /** Main illustration/photograph on the right side. */
-  image?: ImageAsset;
-  /** Small trust points displayed below the call-to-action buttons. */
-  highlights?: HeroHighlight[];
-  /** Social proof line, e.g. "Rated 4.9/5 by 120+ clients". */
-  trustNote?: string;
-  badge?: Badge;
+  /** Verified qualifiers displayed under the buttons, hairline separated. */
+  qualifiers?: HeroQualifier[];
+  /** Small label introducing the hero diagram. */
+  diagramLabel?: string;
 }
 
-/* ---------------------------------- about ----------------------------------- */
+/* ------------------------------- service taxonomy --------------------------- */
 
-export interface ValueItem {
-  title: string;
-  description: string;
-  icon: IconName;
+/** Stable key of one service category (must match `Service.category`). */
+export type ServiceCategoryId =
+  "process-advisory" | "customer-sales" | "back-office" | "talent-hr";
+
+export interface ServiceCategory {
+  id: ServiceCategoryId;
+  /** Two-digit display number, e.g. "01". */
+  index: string;
+  name: string;
+  /** Anchor used on /services, e.g. "process-advisory". */
+  anchor: string;
+  /** One line describing the category. */
+  summary: string;
+  /** The buyer problem this category answers. */
+  problem: string;
 }
-
-export interface TimelineItem {
-  /** Year or period, e.g. "2014" or "2023 – 2024". */
-  year: string;
-  title: string;
-  description: string;
-  icon?: IconName;
-}
-
-/** A titled pillar card with an icon (mission / vision on the /about page). */
-export interface PillarCard {
-  title: string;
-  icon: IconName;
-  description: string;
-}
-
-export interface AboutConfig {
-  heading: SectionHeading;
-  /** Company story, one string per paragraph. */
-  story: string[];
-  /** Main image next to the story. */
-  image: ImageAsset;
-  /** Secondary image layered on top (optional "collage" effect). */
-  secondaryImage?: ImageAsset;
-  /** Mission & vision cards shown on the dedicated /about page. */
-  missionVision: {
-    mission: PillarCard;
-    vision: PillarCard;
-  };
-  /** Headings for the sub-sections of the dedicated /about page. */
-  subsections: {
-    story: SectionHeading;
-    missionVision: SectionHeading;
-    values: SectionHeading;
-    timeline: SectionHeading;
-  };
-  /** Company values (typically 4). */
-  values: ValueItem[];
-  /** Milestones, oldest first. */
-  timeline: TimelineItem[];
-  /** Signature/name shown under the story (optional). */
-  signature?: {
-    name: string;
-    role: string;
-    image?: ImageAsset;
-  };
-  /** "Learn more" button under the story/values preview (optional). */
-  cta?: CtaButton;
-}
-
-/* --------------------------------- services --------------------------------- */
 
 export interface Service {
   /** Stable key, used as a React key and for deep links. */
   id: string;
-  /** URL fragment / slug, e.g. "custom-software-development". */
+  /** URL fragment / slug, e.g. "business-process-management". */
   slug: string;
-  icon: IconName;
+  /** Category this service belongs to. */
+  category: ServiceCategoryId;
   title: string;
   /** One line used on cards and in lists. */
   shortDescription: string;
   /** Longer paragraph used on the detail view. */
   description: string;
-  /** Bullet points describing what the service includes. */
+  /** Concrete functions in scope (used as the "what we handle" checklist). */
   features: string[];
   /** Where the "learn more" link points. */
   href: Href;
-  /** Optional starting price, e.g. "From $4,500". */
-  startingPrice?: string;
-  /** Typical delivery time, e.g. "4 – 8 weeks". */
-  timeline?: string;
-  /** Show a highlighted style / "popular" badge. */
-  featured?: boolean;
-  badge?: Badge;
 }
 
 export interface ServicesConfig {
   heading: SectionHeading;
+  /** Intro paragraph above the grouped index. */
+  intro?: string;
+  categories: ServiceCategory[];
   items: Service[];
-  cta?: CtaButton;
-  /** Label of the per-card link, e.g. "Learn more". */
+  /** Label of the per-service link, e.g. "View scope". */
   linkLabel?: string;
   /** Content of the dedicated /services/[slug] detail page. */
   detail: {
-    /** Heading above the "what's included" feature list. */
+    /** Heading above the "what we handle" feature list. */
     features: SectionHeading;
     /** Heading above the related-services block. */
     related: SectionHeading;
     /** Button in the detail page sidebar. */
     cta: CtaButton;
+    /** Heading above the engagement sidebar block. */
+    engagementLabel: string;
   };
 }
 
-/* --------------------------------- projects --------------------------------- */
+/* ---------------------------------- process --------------------------------- */
 
-export interface ProjectResult {
-  label: string;
-  value: string;
-}
-
-export interface Project {
-  id: string;
-  slug: string;
+export interface ProcessStep {
+  /** Two-digit display number, e.g. "01". */
+  index: string;
   title: string;
-  /** Client or brand name. */
-  client: string;
-  /** Industry/category used by the filter, e.g. "Fintech". */
-  category: string;
-  /** Short line shown on the card. */
-  summary: string;
-  /** Full description for the detail view. */
   description: string;
-  image: ImageAsset;
-  /** Technologies / tags shown as chips. */
-  tags: string[];
-  /** Launch year. */
-  year: string;
-  /** Live URL, if the project is public. */
-  url?: string;
-  /** Measurable outcomes, e.g. "+140% conversions". */
-  results?: ProjectResult[];
-  featured?: boolean;
-  badge?: Badge;
 }
 
-export interface ProjectsConfig {
+export interface ProcessConfig {
   heading: SectionHeading;
-  items: Project[];
-  /** Category filter buttons, first entry is usually "All". */
-  categories: string[];
+  /** Opening paragraph above the step diagram. */
+  intro?: string;
+  /** Engagement lifecycle, in order. */
+  steps: ProcessStep[];
+  /** Line under the diagram (e.g. who owns each step). */
+  note?: string;
   cta?: CtaButton;
 }
 
-/* ----------------------------------- team ----------------------------------- */
+/* --------------------------------- coverage --------------------------------- */
 
-export interface TeamMember {
+/** One row of the weekly coverage diagram. */
+export interface CoverageBand {
   id: string;
-  name: string;
-  role: string;
-  /** Short biography, 1–2 sentences. */
-  bio: string;
-  image: ImageAsset;
-  /** Personal links (LinkedIn, X, email…). */
-  socials: SocialLink[];
-  /** Skills shown as chips on the card. */
-  skills?: string[];
-  /** Email address (optional, shown as an icon link). */
-  email?: string;
-}
-
-export interface TeamConfig {
-  heading: SectionHeading;
-  members: TeamMember[];
-  cta?: CtaButton;
-}
-
-/* ------------------------------- testimonials ------------------------------- */
-
-export interface TestimonialAuthor {
-  name: string;
-  role: string;
-  company: string;
-  image?: ImageAsset;
-}
-
-export interface Testimonial {
-  id: string;
-  /** Client quote. */
-  quote: string;
-  author: TestimonialAuthor;
-  /** Score from 1 to 5 (renders the star row). */
-  rating: number;
-  /** Optional project name the quote refers to. */
-  project?: string;
-}
-
-export interface TestimonialsConfig {
-  heading: SectionHeading;
-  items: Testimonial[];
-}
-
-/* ----------------------------------- stats ---------------------------------- */
-
-export interface Stat {
-  id: string;
-  /** Numeric part, e.g. "250". */
-  value: string;
-  /** Suffix appended to the number, e.g. "+", "%", "K". */
-  suffix?: string;
-  /** Short label under the number, e.g. "Projects delivered". */
   label: string;
-  /** Optional supporting line. */
-  description?: string;
-  icon?: IconName;
+  /** Short value shown next to the label, e.g. "9 hrs / day". */
+  value: string;
+  /** Short days of the week this band covers, e.g. ["Mon", …, "Fri"]. */
+  days: string[];
+  /** Renders the band in the accent treatment (used for the 24/7 option). */
+  highlighted?: boolean;
 }
 
-export interface StatsConfig {
-  heading?: SectionHeading;
-  items: Stat[];
+export interface CoverageConfig {
+  heading: SectionHeading;
+  /** Columns of the diagram (always the seven weekdays). */
+  columns: string[];
+  bands: CoverageBand[];
+  /** Explanatory line under the diagram. */
+  footnote?: string;
 }
 
-/* ---------------------------------- clients --------------------------------- */
+/* ------------------------------- technology --------------------------------- */
 
-export interface Client {
+export interface TechnologyGroup {
   id: string;
-  name: string;
-  logo: ImageAsset;
-  /** Alternate logo for dark backgrounds (optional). */
-  logoDark?: ImageAsset;
-  /** Client website. */
-  url?: string;
-  industry?: string;
+  /** Group label, e.g. "Customer engagement". */
+  label: string;
+  /** Platform names (text only — never vendor logos). */
+  platforms: string[];
 }
 
-export interface ClientsConfig {
-  heading?: SectionHeading;
-  /** Marquee/text above the logo strip. */
-  title?: string;
-  items: Client[];
+export interface TechnologyConfig {
+  heading: SectionHeading;
+  /** Framing paragraph. */
+  intro: string;
+  groups: TechnologyGroup[];
+  /** Trademark / non-affiliation footnote, required wherever names appear. */
+  footnote: string;
 }
 
-/* ---------------------------------- pricing --------------------------------- */
+/* -------------------------------- engagement -------------------------------- */
 
-export interface PricingPlan {
-  id: string;
-  name: string;
+export interface EngagementStep {
+  index: string;
+  title: string;
   description: string;
-  /** Price shown to the visitor, e.g. amount "2,400", currency "USD", period "/ month". */
-  price: {
-    amount: string;
-    currency: string;
-    period: string;
-    /** Note under the price, e.g. "billed annually". */
+}
+
+export interface EngagementConfig {
+  heading: SectionHeading;
+  /** Opening paragraph of the engagement page. */
+  intro: string;
+  /** Compact cells used by the homepage band. */
+  summary: TermRow[];
+  /** Full commercial terms (definition list). */
+  terms: TermRow[];
+  /** What the monthly rate covers. */
+  included: {
+    heading: SectionHeading;
+    items: string[];
     note?: string;
   };
-  /** What is included. Prefix items with "+ " or leave plain. */
-  features: string[];
-  /** Things that are NOT included (optional). */
-  exclusions?: string[];
+  /** How payments are scheduled. */
+  payment: {
+    heading: SectionHeading;
+    steps: EngagementStep[];
+    note?: string;
+  };
+  /** What the final price depends on. */
+  variables: {
+    heading: SectionHeading;
+    items: string[];
+    note?: string;
+  };
+  /** Mandatory caveat: the published rate is a structure, not a quote. */
+  caveat: string;
   cta: CtaButton;
-  /** Draw attention to this plan. */
-  highlighted?: boolean;
-  badge?: Badge;
 }
 
-export interface PricingConfig {
+/* -------------------------------- experience -------------------------------- */
+
+export interface Principle {
+  id: string;
+  title: string;
+  description: string;
+}
+
+export interface ExperienceConfig {
   heading: SectionHeading;
-  /** Text under the heading, e.g. "No hidden fees. Cancel anytime." */
-  note?: string;
-  plans: PricingPlan[];
-  /** Line under the plans, e.g. "Need something custom? Let's talk." */
-  footnote?: string;
+  /** The management-experience statement (use the approved wording only). */
+  statement: string;
+  /** Supporting paragraphs. */
+  paragraphs: string[];
+  /** Operating principles. */
+  principles: {
+    heading: SectionHeading;
+    items: Principle[];
+  };
+  cta?: CtaButton;
+}
+
+/* ----------------------------------- about ---------------------------------- */
+
+export interface AboutConfig {
+  heading: SectionHeading;
+  /** What the company does, in a few paragraphs. */
+  story: {
+    heading: SectionHeading;
+    paragraphs: string[];
+  };
+  /** Management experience + operating principles. */
+  experience: ExperienceConfig;
+  /** How engagements are set up and run. */
+  approach: {
+    heading: SectionHeading;
+    items: { title: string; description: string }[];
+  };
   cta?: CtaButton;
 }
 
@@ -650,58 +593,18 @@ export interface Faq {
   id: string;
   question: string;
   answer: string;
-  /** Groups FAQs into tabs/sections (optional). */
+  /** Groups FAQs into sections (optional). */
   category?: string;
 }
 
 export interface FaqConfig {
   heading: SectionHeading;
   items: Faq[];
-  /** Contact prompt shown when no answer fits, e.g. "Still have questions?". */
+  /** Contact prompt shown when no answer fits. */
   contactNote?: {
     label: string;
     cta: CtaButton;
   };
-}
-
-/* ----------------------------------- blog ----------------------------------- */
-
-export interface BlogAuthor {
-  name: string;
-  role: string;
-  avatar?: ImageAsset;
-}
-
-/** One section of a post body: an optional subheading plus its paragraphs. */
-export interface BlogSection {
-  heading?: string;
-  paragraphs: string[];
-}
-
-export interface BlogPost {
-  id: string;
-  slug: string;
-  title: string;
-  excerpt: string;
-  image: ImageAsset;
-  category: string;
-  tags: string[];
-  /** ISO date, e.g. "2026-02-14". */
-  publishedAt: string;
-  /** Reading time, e.g. "6 min read". */
-  readingTime: string;
-  author: BlogAuthor;
-  /** Article body, rendered as headings + paragraphs on /blog/[slug]. */
-  content: BlogSection[];
-  featured?: boolean;
-}
-
-export interface BlogConfig {
-  heading: SectionHeading;
-  posts: BlogPost[];
-  /** Heading above the related-posts block on post pages. */
-  related: SectionHeading;
-  cta?: CtaButton;
 }
 
 /* ------------------------------------ cta ----------------------------------- */
@@ -713,44 +616,25 @@ export interface CtaSectionConfig {
   description: string;
   primaryCta: CtaButton;
   secondaryCta?: CtaButton;
-  /** Bullet points such as "Free consultation" or "Reply within 24h". */
+  /** Bullet points such as verified engagement facts. */
   bullets?: string[];
-  /** Background image or illustration. */
-  image?: ImageAsset;
 }
 
 /* ---------------------------------- footer ---------------------------------- */
-
-export interface NewsletterConfig {
-  title: string;
-  description: string;
-  placeholder: string;
-  buttonText: string;
-  /** Short legal line under the form. */
-  disclaimer?: string;
-  successMessage: string;
-}
 
 export interface FooterConfig {
   /** Short company description in the footer column. */
   description: string;
   /** Replaces "{year}" and "{name}" in the copyright line. */
   copyright: string;
-  newsletter?: NewsletterConfig;
-  /** Payment/certification badges shown in the footer (optional). */
-  badges?: Badge[];
 }
 
 /* --------------------------------- features --------------------------------- */
 
 /**
  * Master switches: set any key to `false` to remove that section from the site.
- * `showBlog: false` turns /blog and /blog/[slug] into 404s.
  */
-export type FeatureToggles = Omit<Record<SectionId, boolean>, "blog"> & {
-  /** Serves the blog routes when true (otherwise they render the 404 page). */
-  showBlog: boolean;
-};
+export type FeatureToggles = Record<SectionId, boolean>;
 
 /* ---------------------------------- config ---------------------------------- */
 
@@ -762,16 +646,13 @@ export interface SiteConfig {
   theme: ThemeConfig;
   navigation: NavigationConfig;
   hero: HeroConfig;
-  about: AboutConfig;
   services: ServicesConfig;
-  projects: ProjectsConfig;
-  team: TeamConfig;
-  testimonials: TestimonialsConfig;
-  stats: StatsConfig;
-  clients: ClientsConfig;
-  pricing: PricingConfig;
+  process: ProcessConfig;
+  coverage: CoverageConfig;
+  technology: TechnologyConfig;
+  engagement: EngagementConfig;
+  about: AboutConfig;
   faq: FaqConfig;
-  blog: BlogConfig;
   cta: CtaSectionConfig;
   footer: FooterConfig;
   /** Per-section visibility switches. */

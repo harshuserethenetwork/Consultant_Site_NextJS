@@ -24,11 +24,11 @@ export const contactFormSchema = z.object({
       "Enter a valid phone number",
     )
     .optional(),
-  subject: z
-    .string()
-    .trim()
-    .min(3, "Tell us a little more (at least 3 characters)")
-    .max(150, "Subject is too long"),
+  company: z.string().trim().max(150, "Company name is too long").optional(),
+  /** Which functions the enquiry covers — one of the configured options. */
+  needs: z.string().trim().max(100).optional(),
+  /** Approximate team size — one of the configured options. */
+  teamSize: z.string().trim().max(100).optional(),
   message: z
     .string()
     .trim()

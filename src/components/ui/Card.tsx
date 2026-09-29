@@ -2,12 +2,13 @@ import type { HTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * Surface container used for services, projects, pricing, testimonials…
- * All colours come from CSS variables (`bg-card`, `border-border`, …).
+ * Surface container used for services, engagement terms, contact forms…
+ * One hairline border, no resting shadow. All colours come from CSS variables
+ * (`bg-card`, `border-border`, …).
  * Server Component — safe to import from Server and Client components.
  */
 export interface CardProps extends HTMLAttributes<HTMLDivElement> {
-  /** Adds a hover lift + ring — use for clickable cards. */
+  /** Adds a border-colour change on hover — use for clickable cards. */
   interactive?: boolean;
   children?: ReactNode;
 }
@@ -21,9 +22,8 @@ export function Card({
   return (
     <div
       className={cn(
-        "rounded-xl border border-border bg-card text-card-foreground shadow-sm",
-        interactive &&
-          "transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg",
+        "rounded-lg border border-border bg-card text-card-foreground",
+        interactive && "transition-colors duration-200 hover:border-foreground/30",
         className,
       )}
       {...props}
@@ -53,7 +53,7 @@ export function CardTitle({
   return (
     <h3
       className={cn(
-        "font-heading text-xl font-semibold tracking-tight text-foreground sm:text-2xl",
+        "font-heading text-lg font-semibold tracking-tight text-foreground sm:text-xl",
         className,
       )}
       {...props}

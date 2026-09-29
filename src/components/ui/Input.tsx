@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 
 /** Shared chrome for every form control (inputs, textareas, selects). */
 export const fieldClasses =
-  "w-full rounded-md border border-input bg-card px-3.5 py-2.5 text-sm text-foreground shadow-sm transition-colors placeholder:text-muted-foreground " +
+  "w-full rounded-md border border-input bg-card px-3.5 py-2.5 text-sm text-foreground transition-colors placeholder:text-muted-foreground " +
   "disabled:cursor-not-allowed disabled:opacity-60 " +
   '[&[aria-invalid="true"]]:border-destructive [&[aria-invalid="true"]]:ring-1 [&[aria-invalid="true"]]:ring-destructive/40';
 
