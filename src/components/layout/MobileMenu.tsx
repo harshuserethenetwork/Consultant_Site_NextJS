@@ -35,7 +35,7 @@ function NavLinkRow({
 }) {
   const external = item.external ?? item.href.startsWith("http");
   const className = cn(
-    "flex flex-col gap-1 rounded-lg px-3 py-2.5 transition-colors hover:bg-muted",
+    "flex flex-col gap-1 rounded-md px-3 py-2.5 transition-colors hover:bg-muted",
     nested && "px-2 py-2",
   );
 
@@ -44,7 +44,7 @@ function NavLinkRow({
       <span className="flex items-center gap-2 text-sm font-medium text-foreground sm:text-base">
         {item.label}
         {item.badge ? (
-          <span className="rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-accent-foreground uppercase dark:text-accent">
+          <span className="rounded-sm border border-border px-1.5 py-0.5 text-[10px] font-semibold tracking-[0.08em] text-muted-foreground uppercase">
             {item.badge}
           </span>
         ) : null}
@@ -127,13 +127,13 @@ export function MobileMenu({ open, onClose, items }: MobileMenuProps) {
             }
           >
             <div className="flex items-center justify-between border-b border-border px-6 py-4">
-              <span className="font-heading text-lg font-bold">{company.name}</span>
+              <span className="font-heading text-lg font-semibold">{company.name}</span>
               <button
                 ref={closeButtonRef}
                 type="button"
                 onClick={onClose}
                 aria-label="Close menu"
-                className="inline-flex size-10 items-center justify-center rounded-full text-foreground transition-colors hover:bg-muted"
+                className="inline-flex size-10 items-center justify-center rounded-md text-foreground transition-colors hover:bg-muted"
               >
                 <X className="size-5" aria-hidden="true" />
               </button>

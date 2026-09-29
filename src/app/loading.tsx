@@ -13,10 +13,10 @@ export default function Loading() {
       <span className="sr-only">Loading page…</span>
 
       {/* Header band, mirroring <PageHeader>. */}
-      <div className="border-b border-border bg-gradient-to-b from-primary/5 to-transparent py-16 sm:py-20">
+      <div className="border-b border-border bg-muted/50 py-16 sm:py-20">
         <div className="container flex flex-col gap-4">
-          <div className="h-3 w-24 animate-pulse rounded-full bg-muted" />
-          <div className="h-9 w-2/3 max-w-xl animate-pulse rounded-lg bg-muted" />
+          <div className="h-3 w-24 animate-pulse rounded bg-muted" />
+          <div className="h-9 w-2/3 max-w-xl animate-pulse rounded-md bg-muted" />
           <div className="h-4 w-full max-w-2xl animate-pulse rounded bg-muted" />
           <div className="h-4 w-4/5 max-w-lg animate-pulse rounded bg-muted" />
         </div>
@@ -28,7 +28,7 @@ export default function Loading() {
           {Array.from({ length: 3 }).map((_, index) => (
             <div
               key={index}
-              className="overflow-hidden rounded-xl border border-border bg-card shadow-sm"
+              className="overflow-hidden rounded-lg border border-border bg-card"
             >
               <div className="aspect-video animate-pulse bg-muted" />
               <div className="flex flex-col gap-3 p-6">

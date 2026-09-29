@@ -15,7 +15,7 @@ import type { NavItem } from "@/types/config";
 import { cn } from "@/lib/utils";
 
 const ITEM_CLASS =
-  "inline-flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium text-foreground/75 transition-colors hover:text-foreground";
+  "inline-flex items-center gap-1 rounded-md px-3 py-2 text-sm font-medium text-foreground/70 transition-colors hover:text-foreground";
 
 const MENU_PANEL =
   "invisible absolute left-0 top-full z-40 pt-2 opacity-0 transition-opacity duration-150 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100";
@@ -60,18 +60,18 @@ function DesktopNavItem({ item }: { item: NavItem }) {
       {renderAnchor(item.href, external, ITEM_CLASS, label)}
 
       <div className={MENU_PANEL}>
-        <div className="grid w-[32rem] grid-cols-2 gap-1 rounded-2xl border border-border bg-card p-3 shadow-xl">
+        <div className="grid w-[34rem] grid-cols-2 gap-1 rounded-lg border border-border bg-card p-2 shadow-lg">
           {item.children?.map((child) => {
             const childExternal = child.external ?? child.href.startsWith("http");
             return renderAnchor(
               child.href,
               childExternal,
-              "flex flex-col gap-1 rounded-xl p-3 transition-colors hover:bg-muted",
+              "flex flex-col gap-1 rounded-md border border-transparent p-3 transition-colors hover:border-border hover:bg-muted",
               <>
                 <span className="flex items-center gap-2 text-sm font-medium text-foreground">
                   {child.label}
                   {child.badge ? (
-                    <span className="rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-accent-foreground uppercase dark:text-accent">
+                    <span className="rounded-sm border border-border px-1.5 py-0.5 text-[10px] font-semibold tracking-[0.08em] text-muted-foreground uppercase">
                       {child.badge}
                     </span>
                   ) : null}
@@ -91,29 +91,25 @@ function DesktopNavItem({ item }: { item: NavItem }) {
 }
 
 /**
- * Site header: logo, primary navigation (with dropdowns), theme toggle,
- * social shortcuts, main CTA and the mobile menu trigger.
+ * Site header: logo, primary navigation (with category dropdowns), theme
+ * toggle, main CTA and the mobile menu trigger.
  *
- * Transparent at the top of the page, solid + blurred once you scroll
- * (`useScrollPosition`), so the hero stays open and content stays readable
- * underneath. `sticky top-0 z-50` keeps it above every section.
+ * Solid surface with a hairline bottom border — no blur, no floating glass —
+ * so the navigation stays legible over any section. `sticky top-0 z-50`
+ * keeps it above every section.
  */
 export function Header() {
   const scrolled = useScrollPosition(24);
   const [menuOpen, setMenuOpen] = useState(false);
-  const { navigation, company, socials, hero, features } = siteConfig;
+  const { navigation, company, socials, hero } = siteConfig;
   const headerSocials = socials.filter((social) => social.showInHeader);
-  const headerNav = features.showBlog
-    ? navigation.header
-    : navigation.header.filter((item) => item.href !== "/blog");
+  const headerNav = navigation.header;
 
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 w-full transition-all duration-300",
-        scrolled
-          ? "border-b border-border/70 bg-background/85 shadow-sm backdrop-blur-md"
-          : "border-b border-transparent bg-background/60 backdrop-blur-sm",
+        "sticky top-0 z-50 w-full border-b bg-background transition-colors duration-300",
+        scrolled ? "border-border" : "border-border/50",
       )}
     >
       <Container className="flex h-16 items-center justify-between gap-4 lg:h-20">
@@ -160,7 +156,7 @@ export function Header() {
                   target={external ? "_blank" : undefined}
                   rel={external ? "noreferrer noopener" : undefined}
                   aria-label={social.label}
-                  className="inline-flex size-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-primary"
+                  className="inline-flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-primary"
                 >
                   <SocialIcon platform={social.platform} />
                 </a>

@@ -77,8 +77,8 @@
   h6 {
     font-family:
       var(--font-heading), var(--font-body), ui-sans-serif, system-ui, sans-serif;
-    font-weight: 700;
-    letter-spacing: -0.02em;
+    font-weight: 600;
+    letter-spacing: -0.021em;
     text-wrap: balance;
   }
 
@@ -126,6 +126,15 @@
       transition-duration: var(--theme-transition-duration);
       transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     }
+  }
+
+  /* -----------------------------------------------------------------------------
+   * Figures — tabular numerals keep prices, hours and step numbers aligned.
+   * -------------------------------------------------------------------------- */
+  .tnum,
+  dl,
+  table {
+    font-variant-numeric: tabular-nums;
   }
 
   /* -----------------------------------------------------------------------------

@@ -10,21 +10,20 @@ export type ButtonSize = "sm" | "md" | "lg" | "icon";
  * accessible focus indicator (WCAG 2.4.7) without repeating it here.
  */
 const VARIANT_CLASSES: Record<ButtonVariant, string> = {
-  primary:
-    "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 active:bg-primary",
+  primary: "bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary",
   secondary:
-    "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/90 active:bg-secondary",
+    "bg-secondary text-secondary-foreground hover:bg-secondary/90 active:bg-secondary",
   outline:
-    "border border-border bg-transparent text-foreground hover:border-primary/60 hover:bg-primary/5 hover:text-primary",
+    "border border-border bg-transparent text-foreground hover:border-primary/60 hover:text-primary",
   ghost:
     "border border-transparent bg-transparent text-foreground hover:bg-muted hover:text-foreground",
 };
 
 const SIZE_CLASSES: Record<ButtonSize, string> = {
-  sm: "h-9 gap-1.5 px-3 text-sm",
-  md: "h-10 gap-2 px-4 text-sm",
-  lg: "h-12 gap-2.5 px-6 text-base",
-  icon: "size-10 p-0",
+  sm: "h-10 gap-1.5 px-3.5 text-sm",
+  md: "h-11 gap-2 px-5 text-sm",
+  lg: "h-12 gap-2.5 px-6 text-[0.95rem]",
+  icon: "size-11 p-0",
 };
 
 const BASE_CLASSES =

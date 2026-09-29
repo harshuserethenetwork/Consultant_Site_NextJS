@@ -6,7 +6,7 @@ import { SlideUp } from "@/components/animations/SlideUp";
 import { cn } from "@/lib/utils";
 
 /** Background treatment behind the page title. */
-export type PageHeaderBackground = "gradient" | "muted" | "default";
+export type PageHeaderBackground = "primary" | "muted" | "default";
 
 /** One crumb of the trail; omit `href` for the current (last) page. */
 export interface PageHeaderCrumb {
@@ -15,12 +15,12 @@ export interface PageHeaderCrumb {
 }
 
 const BACKGROUND_TONES: Record<PageHeaderBackground, SectionTone> = {
-  gradient: "gradient",
+  primary: "primary",
   muted: "muted",
   default: "default",
 };
 
-/** Tone-aware text classes: the gradient flips everything to on-primary. */
+/** Tone-aware text classes: a `primary` band flips everything to on-primary. */
 interface PageHeaderText {
   eyebrow: string;
   title: string;
@@ -31,8 +31,8 @@ interface PageHeaderText {
 }
 
 const TEXT: Record<PageHeaderBackground, PageHeaderText> = {
-  gradient: {
-    eyebrow: "text-primary-foreground/75",
+  primary: {
+    eyebrow: "text-primary-foreground/70",
     title: "text-primary-foreground",
     description: "text-primary-foreground/85",
     crumb: "text-primary-foreground/70",
@@ -59,18 +59,15 @@ const TEXT: Record<PageHeaderBackground, PageHeaderText> = {
 
 /**
  * Banner at the top of every inner page: breadcrumb trail, optional eyebrow,
- * the `h1` title (with the accent `highlight`) and a supporting line.
+ * the `h1` title (with the `highlight` words in the primary colour) and a
+ * supporting line. Flat surface, hairline bottom edge — no gradients, no orbs.
  *
- * The heading is styled by hand instead of `<SectionHeading>` because that
- * component renders `h2`-style classes and a `text-primary` highlight, which
- * would disappear on a `gradient` background — here both adapt to the tone.
- *
- * Server Component — all content is passed in from `site.config.ts`.
+ * Server Component — all content comes from `site.config.ts`.
  */
 export interface PageHeaderProps {
   /** Page `h1`. */
   title: string;
-  /** Words inside `title` highlighted with the accent colour. */
+  /** Words inside `title` emphasised with the primary colour. */
   highlight?: string;
   /** Small line above the title, e.g. "What we do". */
   eyebrow?: string;
@@ -78,7 +75,7 @@ export interface PageHeaderProps {
   description?: string;
   /** Crumbs from the home page down to this page; the last one is current. */
   breadcrumbs?: PageHeaderCrumb[];
-  /** Background treatment (default: brand gradient). */
+  /** Background treatment (default: plain page background). */
   background?: PageHeaderBackground;
   className?: string;
 }
@@ -91,10 +88,7 @@ function renderTitle(
   if (!highlight || !title.includes(highlight)) return title;
 
   const parts = title.split(highlight);
-  const highlightClass =
-    background === "gradient"
-      ? "rounded-md bg-accent px-2 text-accent-foreground"
-      : "text-primary";
+  const highlightClass = background === "primary" ? "text-accent" : "text-primary";
 
   return parts.map((part, index) => (
     <Fragment key={`${part}-${index}`}>
@@ -165,7 +159,7 @@ export function PageHeader({
   eyebrow,
   description,
   breadcrumbs,
-  background = "gradient",
+  background = "default",
   className,
 }: PageHeaderProps) {
   const text = TEXT[background];
@@ -174,16 +168,9 @@ export function PageHeader({
     <Section
       tone={BACKGROUND_TONES[background]}
       padding="md"
-      className={cn("overflow-hidden", className)}
+      className={cn("border-b border-border", className)}
     >
-      {background === "gradient" ? (
-        <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden="true">
-          <div className="absolute -top-24 right-[-8%] size-72 rounded-full bg-primary-foreground/10 blur-3xl" />
-          <div className="absolute bottom-[-40%] left-[-6%] size-80 rounded-full bg-accent/25 blur-3xl" />
-        </div>
-      ) : null}
-
-      <SlideUp className="flex flex-col gap-5">
+      <SlideUp className="flex flex-col gap-4">
         {breadcrumbs && breadcrumbs.length > 0 ? (
           <Breadcrumbs crumbs={breadcrumbs} background={background} />
         ) : null}
@@ -191,7 +178,7 @@ export function PageHeader({
         {eyebrow ? (
           <p
             className={cn(
-              "text-sm font-semibold tracking-widest uppercase",
+              "text-xs font-semibold tracking-[0.18em] uppercase",
               text.eyebrow,
             )}
           >
@@ -201,7 +188,7 @@ export function PageHeader({
 
         <h1
           className={cn(
-            "font-heading text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl",
+            "max-w-4xl font-heading text-[2.25rem] leading-[1.08] font-semibold tracking-tight sm:text-5xl lg:text-[3.5rem]",
             text.title,
           )}
         >

@@ -4,15 +4,14 @@ import { Check } from "lucide-react";
 import { siteConfig } from "@/config/site.config";
 import { buttonVariants } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
-import { MediaImage } from "@/components/ui/MediaImage";
 import { Section } from "@/components/ui/Section";
-import { FadeIn } from "@/components/animations/FadeIn";
 import { SlideUp } from "@/components/animations/SlideUp";
 
 /**
- * Full-width gradient banner shown before the footer. The heading is styled
- * by hand (not <SectionHeading>) because the eyebrow/highlight of that
- * component use `text-primary`, which would disappear on a primary background.
+ * Full-width conversion band shown before the footer: solid primary colour,
+ * no gradients, orbs or imagery — one headline, verified facts and the two
+ * CTAs. The heading is styled by hand because `SectionHeading` assumes a
+ * light background for its eyebrow and highlight.
  *
  * Server Component — all content comes from `siteConfig.cta`.
  */
@@ -21,43 +20,24 @@ export function CTA() {
   const { cta } = siteConfig;
 
   return (
-    <Section id="cta" bleed tone="gradient" padding="lg" className="overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden="true">
-        <div className="absolute -top-24 right-[-8%] size-80 rounded-full bg-primary-foreground/10 blur-3xl" />
-        <div className="absolute bottom-[-30%] left-[-8%] size-96 rounded-full bg-accent/25 blur-3xl" />
-      </div>
-
+    <Section id="cta" bleed tone="primary" padding="lg">
       <Container>
-        <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-14">
+        <div className="grid gap-10 lg:grid-cols-12 lg:gap-14">
           <div className="lg:col-span-7">
             <SlideUp className="flex flex-col items-start gap-6 text-primary-foreground">
               {cta.eyebrow ? (
-                <p className="text-sm font-semibold tracking-widest text-primary-foreground/80 uppercase">
+                <p className="text-xs font-semibold tracking-[0.18em] text-primary-foreground/70 uppercase">
                   {cta.eyebrow}
                 </p>
               ) : null}
 
-              <h2 className="font-heading text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
+              <h2 className="max-w-3xl font-heading text-[1.875rem] leading-[1.15] font-semibold tracking-tight sm:text-[2.25rem] lg:text-[2.75rem]">
                 {renderTitle(cta.title, cta.highlight)}
               </h2>
 
-              <p className="max-w-2xl text-base leading-relaxed text-primary-foreground/90 sm:text-lg">
+              <p className="max-w-2xl text-base leading-relaxed text-primary-foreground/85 sm:text-lg">
                 {cta.description}
               </p>
-
-              {cta.bullets && cta.bullets.length > 0 ? (
-                <ul className="flex flex-wrap gap-x-6 gap-y-2">
-                  {cta.bullets.map((bullet) => (
-                    <li
-                      key={bullet}
-                      className="flex items-center gap-2 text-sm font-medium text-primary-foreground"
-                    >
-                      <Check className="size-4 shrink-0" aria-hidden="true" />
-                      {bullet}
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
 
               <div className="flex flex-wrap items-center gap-3">
                 <Link
@@ -82,7 +62,7 @@ export function CTA() {
                       variant: "outline",
                       size: "lg",
                       className:
-                        "border-primary-foreground/50 text-primary-foreground hover:border-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground",
+                        "border-primary-foreground/40 text-primary-foreground hover:border-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground",
                     })}
                   >
                     {cta.secondaryCta.label}
@@ -92,12 +72,24 @@ export function CTA() {
             </SlideUp>
           </div>
 
-          {cta.image ? (
-            <FadeIn delay={0.15} className="lg:col-span-5">
-              <div className="relative aspect-[4/3] overflow-hidden rounded-2xl shadow-xl ring-1 ring-primary-foreground/25">
-                <MediaImage image={cta.image} sizes="(min-width: 1024px) 38vw, 100vw" />
-              </div>
-            </FadeIn>
+          {cta.bullets && cta.bullets.length > 0 ? (
+            <div className="lg:col-span-5">
+              <SlideUp delay={0.1}>
+                <dl className="divide-y divide-primary-foreground/20 border-y border-primary-foreground/20">
+                  {cta.bullets.map((bullet) => (
+                    <div
+                      key={bullet}
+                      className="flex items-baseline justify-between gap-6 py-4"
+                    >
+                      <dt className="flex items-center gap-2.5 text-sm text-primary-foreground/80">
+                        <Check className="size-4 shrink-0" aria-hidden="true" />
+                        <span>{bullet}</span>
+                      </dt>
+                    </div>
+                  ))}
+                </dl>
+              </SlideUp>
+            </div>
           ) : null}
         </div>
       </Container>
@@ -108,9 +100,8 @@ export function CTA() {
 CTA.displayName = "CTA";
 
 /**
- * Splits the title on the highlighted words. On the gradient the highlight
- * becomes a solid accent chip (readable in both themes) instead of the
- * `text-primary` span used on light sections.
+ * Splits the title on the highlighted words. On the primary band the highlight
+ * becomes a small accent chip so it stays readable in both themes.
  */
 function renderTitle(title: string, highlight?: string): ReactNode {
   if (!highlight || !title.includes(highlight)) return title;
@@ -120,7 +111,7 @@ function renderTitle(title: string, highlight?: string): ReactNode {
     <Fragment key={`${part}-${index}`}>
       {part}
       {index < parts.length - 1 ? (
-        <span className="rounded-md bg-accent px-2 text-accent-foreground">
+        <span className="rounded-sm bg-accent px-1.5 text-accent-foreground">
           {highlight}
         </span>
       ) : null}

@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowRight, Check, Clock, Wallet } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 import { siteConfig } from "@/config/site.config";
 import type { Service } from "@/types/config";
 import { Badge } from "@/components/ui/Badge";
 import { buttonVariants } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { ConfigIcon } from "@/components/ui/ConfigIcon";
 import { PageHeader } from "@/components/sections/PageHeader";
 import { CTA } from "@/components/sections/CTA";
 import { Section } from "@/components/ui/Section";
@@ -18,7 +17,7 @@ import {
   StaggerItem,
 } from "@/components/animations/StaggerContainer";
 
-const { services, seo } = siteConfig;
+const { services, seo, engagement } = siteConfig;
 
 interface ServicePageProps {
   params: Promise<{ slug: string }>;
@@ -28,7 +27,7 @@ interface ServicePageProps {
  *  get a real 404 status code instead of a streamed 200. */
 export const dynamicParams = false;
 
-/** One static route per service, e.g. /services/custom-software-development. */
+/** One static route per service, e.g. /services/customer-support. */
 export function generateStaticParams(): { slug: string }[] {
   return services.items.map((service) => ({ slug: service.slug }));
 }
@@ -50,34 +49,55 @@ export async function generateMetadata({
     openGraph: {
       title: service.title,
       description: service.shortDescription,
-      url: `/services/${service.slug}`,
+      url: `${seo.siteUrl}/services/${service.slug}`,
       siteName: siteConfig.company.name,
-      images: [{ url: seo.ogImage, width: 1200, height: 630, alt: service.title }],
+      images: seo.ogImage
+        ? [
+            {
+              url: seo.ogImage,
+              width: 1200,
+              height: 630,
+              alt: service.title,
+            },
+          ]
+        : [],
       type: "website",
     },
   };
 }
 
 /**
- * Service detail: page header, full description, the "what's included" list,
- * a meta sidebar with the enquiry button, related services and the site CTA.
- * Unknown slugs render the 404 via `notFound()`.
+ * Service detail: breadcrumbs, the full description, the "what we handle"
+ * checklist, an engagement sidebar with the published rate structure, related
+ * services from the same category and the site CTA.
  */
 export default async function ServiceDetailPage({ params }: ServicePageProps) {
   const { slug } = await params;
   const service = findService(slug);
   if (!service) notFound();
 
-  const related = services.items.filter((item) => item.id !== service.id).slice(0, 3);
+  const category = services.categories.find((item) => item.id === service.category);
+  const related = services.items.filter(
+    (item) => item.category === service.category && item.id !== service.id,
+  );
 
   return (
     <>
       <PageHeader
         title={service.title}
         description={service.shortDescription}
+        eyebrow={category?.name}
         breadcrumbs={[
           { label: "Home", href: "/" },
           { label: "Services", href: "/services" },
+          ...(category
+            ? [
+                {
+                  label: category.name,
+                  href: `/services#${category.anchor}`,
+                },
+              ]
+            : []),
           { label: service.title },
         ]}
       />
@@ -87,39 +107,27 @@ export default async function ServiceDetailPage({ params }: ServicePageProps) {
         <div className="grid gap-10 lg:grid-cols-3 lg:gap-14">
           <div className="flex flex-col gap-10 lg:col-span-2">
             <SlideUp className="flex flex-col gap-6">
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
-                  <ConfigIcon name={service.icon} className="size-6" />
-                </span>
-
-                {service.badge ? (
-                  <Badge
-                    variant="accent"
-                    icon={<ConfigIcon name={service.badge.icon} className="size-3.5" />}
-                  >
-                    {service.badge.label}
-                  </Badge>
-                ) : null}
-              </div>
+              {category ? <Badge variant="outline">{category.name}</Badge> : null}
 
               <p className="text-lg leading-relaxed text-foreground sm:text-xl">
                 {service.description}
               </p>
             </SlideUp>
 
-            {/* what's included */}
+            {/* what we handle */}
             <SlideUp delay={0.1} className="flex flex-col gap-6">
               <SectionHeading {...services.detail.features} as="h2" />
 
-              <ul className="grid gap-3 rounded-2xl border border-border bg-card p-6 shadow-sm sm:grid-cols-2 sm:p-8">
+              <ul className="grid gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-2">
                 {service.features.map((feature) => (
                   <li
                     key={feature}
-                    className="flex items-start gap-3 text-sm leading-relaxed text-foreground"
+                    className="flex items-start gap-3 bg-card px-6 py-4 text-sm leading-relaxed text-foreground"
                   >
-                    <span className="grid size-6 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
-                      <Check className="size-3.5" aria-hidden="true" />
-                    </span>
+                    <Check
+                      className="mt-0.5 size-4 shrink-0 text-primary"
+                      aria-hidden="true"
+                    />
                     <span>{feature}</span>
                   </li>
                 ))}
@@ -131,43 +139,35 @@ export default async function ServiceDetailPage({ params }: ServicePageProps) {
           <SlideUp delay={0.15}>
             <div className="lg:sticky lg:top-28 lg:self-start">
               <Card className="p-6 sm:p-8">
-                <dl className="flex flex-col gap-5">
-                  {service.startingPrice ? (
-                    <div className="flex items-center gap-3">
-                      <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-                        <Wallet className="size-5" aria-hidden="true" />
-                      </span>
-                      <div>
-                        <dt className="text-xs text-muted-foreground">Investment</dt>
-                        <dd className="font-heading text-lg font-semibold text-foreground">
-                          {service.startingPrice}
-                        </dd>
-                      </div>
-                    </div>
-                  ) : null}
+                <p className="font-mono text-[0.6875rem] tracking-[0.08em] text-muted-foreground uppercase">
+                  {services.detail.engagementLabel}
+                </p>
 
-                  {service.timeline ? (
-                    <div className="flex items-center gap-3">
-                      <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-                        <Clock className="size-5" aria-hidden="true" />
-                      </span>
-                      <div>
-                        <dt className="text-xs text-muted-foreground">
-                          Typical timeline
-                        </dt>
-                        <dd className="font-heading text-lg font-semibold text-foreground">
-                          {service.timeline}
+                <dl className="mt-5 divide-y divide-border border-y border-border">
+                  {engagement.summary.map((row) => (
+                    <div key={row.label} className="py-4">
+                      <dt className="text-xs text-muted-foreground">{row.label}</dt>
+                      <dd className="mt-1 font-heading text-lg font-semibold text-foreground">
+                        {row.value}
+                      </dd>
+                      {row.note ? (
+                        <dd className="mt-0.5 text-xs text-muted-foreground">
+                          {row.note}
                         </dd>
-                      </div>
+                      ) : null}
                     </div>
-                  ) : null}
+                  ))}
                 </dl>
+
+                <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
+                  {engagement.caveat}
+                </p>
 
                 <Link
                   href={services.detail.cta.href}
                   target={services.detail.cta.external ? "_blank" : undefined}
                   rel={services.detail.cta.external ? "noopener noreferrer" : undefined}
-                  className={buttonVariants({ className: "mt-7 w-full" })}
+                  className={buttonVariants({ className: "mt-6 w-full" })}
                 >
                   {services.detail.cta.label}
                   <ArrowRight className="size-4" aria-hidden="true" />
@@ -190,10 +190,13 @@ export default async function ServiceDetailPage({ params }: ServicePageProps) {
               <StaggerItem key={item.id} className="h-full">
                 <Link
                   href={item.href}
-                  className="group flex h-full flex-col gap-3 rounded-xl border border-border bg-card p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg"
+                  className="group flex h-full flex-col gap-3 rounded-lg border border-border bg-card p-6 transition-colors duration-200 hover:border-foreground/30"
                 >
-                  <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
-                    <ConfigIcon name={item.icon} className="size-5" />
+                  <span className="font-mono text-xs text-primary">
+                    {
+                      services.categories.find((entry) => entry.id === item.category)
+                        ?.index
+                    }
                   </span>
 
                   <h3 className="font-heading text-lg font-semibold tracking-tight text-foreground">

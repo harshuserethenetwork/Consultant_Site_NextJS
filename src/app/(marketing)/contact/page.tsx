@@ -1,16 +1,10 @@
 import type { Metadata } from "next";
-import { Clock, Mail, MapPin, Phone } from "lucide-react";
 import { siteConfig } from "@/config/site.config";
 import { Card } from "@/components/ui/Card";
 import { Section } from "@/components/ui/Section";
-import { SocialIcon } from "@/components/ui/SocialIcon";
 import { PageHeader } from "@/components/sections/PageHeader";
 import { ContactForm } from "@/components/sections/ContactForm";
 import { SlideUp } from "@/components/animations/SlideUp";
-import {
-  StaggerContainer,
-  StaggerItem,
-} from "@/components/animations/StaggerContainer";
 
 const { contact, company, socials } = siteConfig;
 
@@ -20,89 +14,16 @@ export const metadata: Metadata = {
 };
 
 /**
- * /contact — four contact-method cards, the message form (client component,
- * POSTs to /api/contact), the embedded office map and social links.
+ * /contact — the enquiry form plus a "what helps us scope quickly" card.
  *
- * Every string comes from `siteConfig.contact`.
+ * Only configured channels render: no email, phone, address, map or social
+ * links are published until they are real and monitored, so nothing is
+ * invented here. Every string comes from `siteConfig.contact`.
  */
 export default function ContactPage() {
-  // "San Francisco, California 94103" from the city/region/postalCode parts.
-  const cityLine = [
-    contact.region ? `${contact.city}, ${contact.region}` : contact.city,
-    contact.postalCode,
-  ]
-    .filter(Boolean)
-    .join(" ");
-
-  const addressLines = [contact.address, cityLine, contact.country];
-  const telHref = `tel:${contact.phone.replace(/[^\d+]/g, "")}`;
-
-  const infoCards = [
-    {
-      id: "email",
-      icon: Mail,
-      title: "Email",
-      content: (
-        <a
-          href={`mailto:${contact.email}`}
-          className="font-medium break-all text-foreground transition-colors hover:text-primary"
-        >
-          {contact.email}
-        </a>
-      ),
-    },
-    {
-      id: "phone",
-      icon: Phone,
-      title: "Phone",
-      content: (
-        <a
-          href={telHref}
-          className="font-medium text-foreground transition-colors hover:text-primary"
-        >
-          {contact.phone}
-        </a>
-      ),
-    },
-    {
-      id: "address",
-      icon: MapPin,
-      title: "Address",
-      content: (
-        <address className="not-italic">
-          {addressLines.map((line) => (
-            <span key={line} className="block">
-              {line}
-            </span>
-          ))}
-        </address>
-      ),
-    },
-    {
-      id: "hours",
-      icon: Clock,
-      title: "Working hours",
-      content: (
-        <dl className="flex flex-col gap-1.5">
-          {contact.workingHours.map((entry) => (
-            <div
-              key={entry.days}
-              className="flex items-baseline justify-between gap-4 text-sm"
-            >
-              <dt className="text-muted-foreground">{entry.days}</dt>
-              <dd
-                className={
-                  entry.closed ? "text-muted-foreground" : "font-medium text-foreground"
-                }
-              >
-                {entry.hours}
-              </dd>
-            </div>
-          ))}
-        </dl>
-      ),
-    },
-  ];
+  const hasChannel = Boolean(
+    contact.email || contact.phone || contact.address || contact.workingHours,
+  );
 
   return (
     <>
@@ -114,68 +35,76 @@ export default function ContactPage() {
         breadcrumbs={[{ label: "Home", href: "/" }, { label: "Contact" }]}
       />
 
-      {/* -------------------------------------------------------- contact cards */}
-      <Section id="contact" padding="md">
-        <StaggerContainer className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {infoCards.map((card) => (
-            <StaggerItem key={card.id} className="h-full">
-              <Card className="flex h-full flex-col gap-3.5 p-6">
-                <span className="grid size-11 place-items-center rounded-lg bg-primary/10 text-primary">
-                  <card.icon className="size-5" aria-hidden="true" />
-                </span>
-                <h2 className="text-sm font-semibold tracking-wider text-foreground uppercase">
-                  {card.title}
-                </h2>
-                <div className="text-sm leading-relaxed text-muted-foreground">
-                  {card.content}
-                </div>
+      <Section id="contact" padding="lg">
+        <div className="grid gap-8 lg:grid-cols-5 lg:gap-12">
+          <div className="lg:col-span-3">
+            <SlideUp>
+              <Card className="p-6 sm:p-8">
+                <ContactForm form={contact.form} />
               </Card>
-            </StaggerItem>
-          ))}
-        </StaggerContainer>
-      </Section>
-
-      {/* ----------------------------------------- form + map + social links */}
-      <Section tone="muted" padding="lg">
-        <SlideUp className="grid gap-6 lg:grid-cols-5 lg:gap-8">
-          <Card className="p-6 sm:p-8 lg:col-span-3">
-            <ContactForm form={contact.form} />
-          </Card>
+            </SlideUp>
+          </div>
 
           <div className="flex flex-col gap-6 lg:col-span-2">
-            <Card className="overflow-hidden">
-              <iframe
-                title="Google Maps — Nexora office"
-                src={contact.mapEmbedUrl}
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                allowFullScreen
-                className="h-64 w-full border-0 sm:h-72"
-              />
-            </Card>
+            {contact.guidance ? (
+              <SlideUp delay={0.1}>
+                <Card className="p-6">
+                  <h2 className="text-xs font-semibold tracking-[0.18em] text-foreground uppercase">
+                    {contact.guidance.title}
+                  </h2>
+                  <ul className="mt-4 divide-y divide-border border-y border-border">
+                    {contact.guidance.items.map((item) => (
+                      <li
+                        key={item}
+                        className="py-3 text-sm leading-relaxed text-muted-foreground"
+                      >
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </Card>
+              </SlideUp>
+            ) : null}
 
-            <Card className="p-6">
-              <h2 className="text-sm font-semibold tracking-wider text-foreground uppercase">
-                {contact.socialsLabel}
-              </h2>
-              <ul className="mt-4 flex flex-wrap gap-2.5">
-                {socials.map((social) => (
-                  <li key={`${social.platform}-${social.url}`}>
+            {hasChannel ? (
+              <SlideUp delay={0.15}>
+                <Card className="p-6">
+                  {contact.email ? (
                     <a
-                      href={social.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={social.label}
-                      className="inline-flex size-10 items-center justify-center rounded-full border border-border bg-background text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+                      href={`mailto:${contact.email}`}
+                      className="block text-sm font-medium break-all text-foreground transition-colors hover:text-primary"
                     >
-                      <SocialIcon platform={social.platform} />
+                      {contact.email}
                     </a>
-                  </li>
-                ))}
-              </ul>
-            </Card>
+                  ) : null}
+                  {contact.phone ? (
+                    <a
+                      href={`tel:${contact.phone.replace(/[^\d+]/g, "")}`}
+                      className="mt-3 block text-sm font-medium text-foreground transition-colors hover:text-primary"
+                    >
+                      {contact.phone}
+                    </a>
+                  ) : null}
+                  {contact.address ? (
+                    <address className="mt-3 text-sm text-muted-foreground not-italic">
+                      {contact.address}
+                    </address>
+                  ) : null}
+                </Card>
+              </SlideUp>
+            ) : null}
+
+            {socials.length > 0 && contact.socialsLabel ? (
+              <SlideUp delay={0.2}>
+                <Card className="p-6">
+                  <h2 className="text-xs font-semibold tracking-[0.18em] text-foreground uppercase">
+                    {contact.socialsLabel}
+                  </h2>
+                </Card>
+              </SlideUp>
+            ) : null}
           </div>
-        </SlideUp>
+        </div>
       </Section>
     </>
   );

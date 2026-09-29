@@ -22,7 +22,7 @@ export function FAQ() {
   const groups = groupByCategory(faq.items);
 
   return (
-    <Section id="faq" tone="muted" padding="lg">
+    <Section id="faq" tone="default" padding="lg" className="border-t border-border">
       <div className="grid gap-10 lg:grid-cols-5 lg:gap-16">
         <div className="lg:sticky lg:top-28 lg:col-span-2 lg:self-start">
           <SlideUp>
@@ -53,7 +53,7 @@ export function FAQ() {
               delay={0.1 + groupIndex * 0.05}
             >
               {group.category ? (
-                <p className="mb-3 text-xs font-semibold tracking-widest text-primary uppercase">
+                <p className="mb-3 text-xs font-semibold tracking-[0.18em] text-primary uppercase">
                   {group.category}
                 </p>
               ) : null}
